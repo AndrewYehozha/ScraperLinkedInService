@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace ScraperLinkedInService.Scheduler
 {
-    public class SchedulerService
+    public class SchedulerService : IDisposable
     {
         private static SchedulerService _instance;
-        private List<Timer> timers = new List<Timer>();
+        private List<Timer> timers;
 
-        private SchedulerService() { }
+        private SchedulerService() {
+            timers = new List<Timer>();
+        }
 
         public static SchedulerService Instance => _instance ?? (_instance = new SchedulerService());
 
@@ -39,6 +42,20 @@ namespace ScraperLinkedInService.Scheduler
         public void Clear()
         {
             timers = null;
+        }
+
+        public void Dispose()
+        {
+            if (timers.Any())
+            {
+                foreach (var timer in timers)
+                {
+                    if (timer != null)
+                    {
+                        timer.Dispose();
+                    }
+                }
+            }
         }
     }
 }
