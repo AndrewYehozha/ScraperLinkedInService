@@ -2,9 +2,10 @@
 using ScraperLinkedInService.Scheduler;
 using ScraperLinkedInService.Services;
 using ScraperLinkedInService.WorkerService;
-using System.Net;
+using System;
 using System.ServiceProcess;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ScraperLinkedInService
 {
@@ -13,30 +14,29 @@ namespace ScraperLinkedInService
         private readonly Scraper _scraper;
         private readonly AccountService _accountService;
         private readonly SettingService _settingService;
-
-        private bool _isAuthorized = false;
-        private string _APIKey = string.Empty;
+        private readonly DebugLogService _debugLogService;
+        private AppServiceConfiguration _configuration;
 
         public Service()
         {
             _scraper = new Scraper();
             _accountService = new AccountService();
             _settingService = new SettingService();
+            _debugLogService = new DebugLogService();
+            _configuration = AppServiceConfiguration.Instance;
             InitializeComponent();
         }
 
 
         protected override void OnStart(string[] args)
         {
-            var authorizationResponse = _accountService.Authorization();
-            if (authorizationResponse != null && authorizationResponse.StatusCode == (int)HttpStatusCode.OK)
-            {
-                _isAuthorized = true;
-                _APIKey = authorizationResponse.Token;
-                //_loggerService.Add("Scheduler service are starting...", "");
-                var advanceSettingsResponse = _settingService.GetAdvanceSettings(_APIKey);
-                var settingsResponse = _settingService.GetSettings(_APIKey);
+            _accountService.Authorization();
 
+            if (_configuration.IsAuthorized)
+            {
+                Task.Run(() => _debugLogService.SendDebugLogAsync(_debugLogService.GenerateViewModel("", "Scheduler service are starting...")));
+                
+                var advanceSettingsResponse = _settingService.GetAdvanceSettings();
                 var intervalType = advanceSettingsResponse.AdvanceSettingsViewModel.IntervalType;
                 var timeStart = advanceSettingsResponse.AdvanceSettingsViewModel.TimeStart;
                 var intervalValue = advanceSettingsResponse.AdvanceSettingsViewModel.IntervalValue;
@@ -44,8 +44,7 @@ namespace ScraperLinkedInService
                 switch (intervalType)
                 {
                     case IntervalType.Hour:
-
-                        //_loggerService.Add("Start a schedule", "With an interval in hours");
+                        Task.Run(() => _debugLogService.SendDebugLogAsync(_debugLogService.GenerateViewModel("With an interval in Hours", "Start a schedule")));
 
                         MyScheduler.IntervalInHours(timeStart.Hours, timeStart.Minutes, intervalValue,
                         () =>
@@ -55,8 +54,7 @@ namespace ScraperLinkedInService
                         break;
 
                     case IntervalType.Day:
-
-                        //_loggerService.Add("Start a schedule", "With an interval in days");
+                        Task.Run(() => _debugLogService.SendDebugLogAsync(_debugLogService.GenerateViewModel("With an interval in Days", "Start a schedule")));
 
                         MyScheduler.IntervalInDays(timeStart.Hours, timeStart.Minutes, intervalValue,
                         () =>
@@ -66,7 +64,7 @@ namespace ScraperLinkedInService
                         break;
 
                     default:
-                        //_loggerService.Add("Error INTERVAL_TYPE", "Invalid IntervalType.Please, check the value of < INTERVAL_TYPE > in App.config.");
+                        Task.Run(() => _debugLogService.SendDebugLogAsync(_debugLogService.GenerateViewModel("Invalid IntervalType.Please, check the value of < INTERVAL_TYPE > in App.config.", "Error INTERVAL_TYPE")));
                         break;
                 }
             }
@@ -74,39 +72,45 @@ namespace ScraperLinkedInService
 
         protected override void OnShutdown()
         {
-            //_loggerService.Add("Scheduler service is stoping...", "");
-            _scraper.Close();
-            //_loggerService.Add("Scheduler service stopped", "System shutdown");
+            Task.Run(() => _debugLogService.SendDebugLogAsync(_debugLogService.GenerateViewModel("", "Scheduler service is stoping...")));
 
-            if (!string.IsNullOrEmpty(_APIKey))
+            _scraper.Close();
+
+            Task.Run(() => _debugLogService.SendDebugLogAsync(_debugLogService.GenerateViewModel("System shutdown", "Scheduler service stopped")));
+
+            if (_configuration.IsAuthorized)
             {
-                _settingService.UpdateScraperStatus(_APIKey, ScraperStatus.Exception).Wait();
+                _settingService.UpdateScraperStatus(ScraperStatus.Exception);
             }
         }
 
         protected override void OnStop()
         {
-            //_loggerService.Add("Scheduler service is stoping...", "");
+            Task.Run(() => _debugLogService.SendDebugLogAsync(_debugLogService.GenerateViewModel("", "Scheduler service is stoping...")));
+            
             _scraper.Close();
-            //_loggerService.Add("Scheduler service stopped", "");
 
-            if (!string.IsNullOrEmpty(_APIKey) && _isAuthorized)
+            Task.Run(() => _debugLogService.SendDebugLogAsync(_debugLogService.GenerateViewModel("System shutdown", "Scheduler service stopped")));
+
+            if (_configuration.IsAuthorized)
             {
-                _settingService.UpdateScraperStatus(_APIKey, ScraperStatus.OFF).Wait();
+                _settingService.UpdateScraperStatus(ScraperStatus.OFF);
             }
         }
 
         public void RunAsConsole(string[] args)
         {
             OnStart(args);
+            Console.ReadKey(true);
+            OnStop();
         }
 
         private void RunScraper()
         {
-            if (!_scraper.Initialize(_APIKey))
+            if (!_scraper.Initialize())
             {
                 OnStop();
-                _settingService.UpdateScraperStatus(_APIKey, ScraperStatus.Exception).Wait();
+                _settingService.UpdateScraperStatus(ScraperStatus.Exception);
             }
             Thread.Sleep(90000);
             _scraper.Run();

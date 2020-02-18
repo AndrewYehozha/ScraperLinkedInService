@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -14,7 +15,6 @@ namespace ScraperLinkedInService.WorkerService
     public class Scraper
     {
         //https://sites.google.com/a/chromium.org/chrome_driver/downloads
-        //https://developer.microsoft.com/en-us/microsoft-edge/tools/web_driver/
 
         private readonly AccountService _accountService;
         private readonly SettingService _settingService;
@@ -24,18 +24,39 @@ namespace ScraperLinkedInService.WorkerService
 
         private AdvanceSettingsViewModel _advanceSettingsVM;
         private SettingsViewModel _settingsVM;
-        private string _APIKey;
+        private AppServiceConfiguration _configuration;
 
         public Scraper()
         {
             _accountService = new AccountService();
             _settingService = new SettingService();
+            _configuration = AppServiceConfiguration.Instance;
         }
 
-        public bool Initialize(string APIKey)
+        public bool Initialize()
         {
             try
             {
+                if (!_configuration.IsAuthorized)
+                {
+                    _accountService.Authorization();
+
+                    if (!_configuration.IsAuthorized)
+                        return false;
+                }
+
+                var advanceSettingsResponse = _settingService.GetAdvanceSettings();
+                var settingsResponse = _settingService.GetSettings();
+
+                if (advanceSettingsResponse.StatusCode != (int)HttpStatusCode.OK
+                    || settingsResponse.StatusCode != (int)HttpStatusCode.OK)
+                {
+                    return false;
+                }
+
+                _advanceSettingsVM = advanceSettingsResponse.AdvanceSettingsViewModel;
+                _settingsVM = settingsResponse.SettingsViewModel;
+
                 var options = new ChromeOptions();
                 options.AddArgument("no-sandbox");
                 _driver = new ChromeDriver(options);
@@ -45,15 +66,12 @@ namespace ScraperLinkedInService.WorkerService
                 _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
                 _driver.Navigate().GoToUrl("https://www.linkedin.com");
 
-                _advanceSettingsVM = _settingService.GetAdvanceSettings(_APIKey).AdvanceSettingsViewModel; //if statuscode = 401 => authorized, if statuscode = 401 => return false;
-                _settingsVM = _settingService.GetSettings(_APIKey).SettingsViewModel;
-                _APIKey = APIKey;
 
                 return true;
             }
             catch (Exception ex)
             {
-                _settingService.UpdateScraperStatus(_APIKey, ScraperStatus.Exception).Wait();
+                _settingService.UpdateScraperStatus(ScraperStatus.Exception);
                 //_loggerService.Add("Error initialize scraper", ex.ToString());
 
                 return false;

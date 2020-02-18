@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{32E0197B-26F6-467D-81B8-2EFF1B2E8415}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>ScraperLinkedInService</RootNamespace>
     <AssemblyName>ScraperLinkedInService</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
@@ -31,6 +31,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Flurl, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -66,12 +69,15 @@
   <ItemGroup>
     <Compile Include="AppServiceConfiguration.cs" />
     <Compile Include="Models\Entities\AdvanceSettingsViewModel.cs" />
+    <Compile Include="Models\Entities\DebugLogViewModel.cs" />
     <Compile Include="Models\Entities\SettingsViewModel.cs" />
     <Compile Include="Models\Request\AuthorizationServiceRequest.cs" />
+    <Compile Include="Models\Request\DebugLogRequest.cs" />
     <Compile Include="Models\Request\UpdateScraperStatusRequest.cs" />
     <Compile Include="Models\Response\AuthorizationServiceResponse.cs" />
     <Compile Include="Models\Response\BaseResponse.cs" />
     <Compile Include="Models\Response\AdvanceSettingsResponse.cs" />
+    <Compile Include="Models\Response\DebugLogsResponse.cs" />
     <Compile Include="Models\Response\SettingsResponse.cs" />
     <Compile Include="Models\Types\IntervalType.cs" />
     <Compile Include="Models\Types\ScraperStatus.cs" />
@@ -92,6 +98,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AccountService.cs" />
+    <Compile Include="Services\DebugLogService.cs" />
     <Compile Include="Services\SettingService.cs" />
     <Compile Include="WorkerService\Scraper.cs" />
   </ItemGroup>
