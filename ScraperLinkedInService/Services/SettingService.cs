@@ -2,62 +2,83 @@
 using ScraperLinkedInService.Models.Request;
 using ScraperLinkedInService.Models.Response;
 using ScraperLinkedInService.Models.Types;
-using System.Threading.Tasks;
+using System;
 
 namespace ScraperLinkedInService.Services
 {
-    public class SettingService
+    public class SettingService : IDisposable
     {
-        private readonly string _serverURL;
+        private AppServiceConfiguration _configuration;
+        private readonly IFlurlClient _flurlClient;
 
         public SettingService()
         {
-            _serverURL = AppServiceConfiguration.Instance.ServerURL;
+            _configuration = AppServiceConfiguration.Instance;
+            _flurlClient = new FlurlClient(_configuration.ServerURL);
         }
 
-        public AdvanceSettingsResponse GetAdvanceSettings(string token)
+        public AdvanceSettingsResponse GetAdvanceSettings()
         {
             try
             {
-                var response = (_serverURL + "api/v1/advance-settings")
-                    .WithHeader("Authorization", "Bearer " + token)
+                var response = _flurlClient.Request("api/v1/advance-settings")
+                    .WithOAuthBearerToken(_configuration.Token)
                     .GetJsonAsync<AdvanceSettingsResponse>()
                     .Result;
 
                 return response;
             }
-            catch { }
-
-            return null;
+            catch
+            {
+                _configuration.LogOut();
+                return default;
+            }
         }
 
-        public SettingsResponse GetSettings(string token)
+        public SettingsResponse GetSettings()
         {
             try
             {
-                var response = (_serverURL + "api/v1/settings")
-                    .WithHeader("Authorization", "Bearer " + token)
+                var response = _flurlClient.Request("api/v1/settings")
+                    .WithOAuthBearerToken(_configuration.Token)
                     .GetJsonAsync<SettingsResponse>()
                     .Result;
 
                 return response;
             }
-            catch { }
-
-            return null;
+            catch
+            {
+                _configuration.LogOut();
+                return default;
+            }
         }
 
-        public async Task UpdateScraperStatus(string token, ScraperStatus status)
+        public BaseResponse UpdateScraperStatus(ScraperStatus status)
         {
             var requestModel = new UpdateScraperStatusRequest
             {
                 Status = status
             };
 
-            var response = await (_serverURL + "api/v1/settings/windows-service-scraper/scraper-status")
-                .WithHeader("Authorization", "Bearer " + token)
-                .PutJsonAsync(requestModel)
-                .ReceiveJson<BaseResponse>();
+            try
+            {
+                var response = _flurlClient.Request("api/v1/settings/windows-service-scraper/scraper-status")
+                    .WithOAuthBearerToken(_configuration.Token)
+                    .PutJsonAsync(requestModel)
+                    .ReceiveJson<BaseResponse>().Result;
+
+                return response;
+            }
+            catch
+            {
+                _configuration.LogOut();
+                return default;
+            }
+        }
+
+        public void Dispose()
+        {
+            _flurlClient.Dispose();
         }
     }
 }

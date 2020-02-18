@@ -1,21 +1,20 @@
 ﻿using Flurl.Http;
 using ScraperLinkedInService.Models.Request;
 using ScraperLinkedInService.Models.Response;
-using ScraperLinkedInService.Models.Types;
 using System;
-using System.Threading.Tasks;
+using System.Net;
 
 namespace ScraperLinkedInService.Services
 {
-    public class AccountService
+    public class AccountService : IDisposable
     {
-        private readonly string _APIKey;
-        private readonly string _serverURL;
+        private AppServiceConfiguration _configuration;
+        private readonly IFlurlClient _flurlClient;
 
         public AccountService()
         {
-            _APIKey = AppServiceConfiguration.Instance.APIKey;
-            _serverURL = AppServiceConfiguration.Instance.ServerURL;
+            _configuration = AppServiceConfiguration.Instance;
+            _flurlClient = new FlurlClient(_configuration.ServerURL);
         }
 
         public AuthorizationServiceResponse Authorization()
@@ -24,19 +23,29 @@ namespace ScraperLinkedInService.Services
             {
                 var requestModel = new AuthorizationServiceRequest
                 {
-                    Guid = new Guid(_APIKey)
+                    Guid = new Guid(_configuration.APIKey)
                 };
 
-                var response = (_serverURL + "api/v1/accounts/windows-service/signin")
-                    .PostUrlEncodedAsync(requestModel)
-                    .ReceiveJson<AuthorizationServiceResponse>()
-                    .Result;
+                var response = _flurlClient.Request("api/v1/accounts/windows-service/signin")
+                     .PostUrlEncodedAsync(requestModel)
+                     .ReceiveJson<AuthorizationServiceResponse>()
+                     .Result;
+
+                _configuration.IsAuthorized = !string.IsNullOrEmpty(response.Token) && response.StatusCode == (int)HttpStatusCode.OK;
+                _configuration.Token = !string.IsNullOrEmpty(response.Token) ? response.Token : string.Empty;
 
                 return response;
             }
-            catch { }
+            catch
+            {
+                _configuration.LogOut();
+                return default;
+            }
+        }
 
-            return null;
+        public void Dispose()
+        {
+            _flurlClient.Dispose();
         }
     }
 }
