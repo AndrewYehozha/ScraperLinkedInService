@@ -19,45 +19,49 @@ namespace ScraperLinkedInService.Services
             _flurlClient = new FlurlClient(_configuration.ServerURL);
         }
 
-        public async Task SendDebugLogAsync(DebugLogViewModel debugLogVM)
+        public void SendDebugLogAsync(string logs, string remarks)
         {
-            var requestModel = new DebugLogRequest
+            if (_configuration.IsAuthorized)
             {
-                DebugLogViewModel = debugLogVM
-            };
+                var requestModel = new DebugLogRequest
+                {
+                    DebugLogViewModel = GenerateViewModel(logs, remarks)
+                };
 
-            try
-            {
-                await _flurlClient.Request("api/v1/debug-logs/windows-service-scraper")
-                    .WithOAuthBearerToken(_configuration.Token)
-                    .PutJsonAsync(requestModel)
-                    .ReceiveJson<DebugLogsResponse>();
-
-            }
-            catch
-            {
-                _configuration.LogOut();
+                try
+                {
+                    Task.Run(() => _flurlClient.Request("api/v1/debug-logs/windows-service-scraper")
+                        .WithOAuthBearerToken(_configuration.Token)
+                        .PutJsonAsync(requestModel)
+                        .ReceiveJson<DebugLogsResponse>());
+                }
+                catch
+                {
+                    _configuration.LogOut();
+                }
             }
         }
 
-        public async Task SendDebugLogsAsync(IEnumerable<DebugLogViewModel> debugLogsVM)
+        public void SendDebugLogsAsync(IEnumerable<DebugLogViewModel> debugLogsVM)
         {
-            var requestModel = new DebugLogsRequest
+            if (_configuration.IsAuthorized)
             {
-                DebugLogsViewModel = debugLogsVM
-            };
+                var requestModel = new DebugLogsRequest
+                {
+                    DebugLogsViewModel = debugLogsVM
+                };
 
-            try
-            {
-                await _flurlClient.Request("api/v1/debug-logs/windows-service-scraper")
-                    .WithOAuthBearerToken(_configuration.Token)
-                    .PutJsonAsync(requestModel)
-                    .ReceiveJson<DebugLogsResponse>();
-
-            }
-            catch
-            {
-                _configuration.LogOut();
+                try
+                {
+                    Task.Run(() => _flurlClient.Request("api/v1/debug-logs/windows-service-scraper")
+                        .WithOAuthBearerToken(_configuration.Token)
+                        .PutJsonAsync(requestModel)
+                        .ReceiveJson<DebugLogsResponse>());
+                }
+                catch
+                {
+                    _configuration.LogOut();
+                }
             }
         }
 
