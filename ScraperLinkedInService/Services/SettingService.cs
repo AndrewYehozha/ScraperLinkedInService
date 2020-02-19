@@ -53,26 +53,26 @@ namespace ScraperLinkedInService.Services
             }
         }
 
-        public BaseResponse UpdateScraperStatus(ScraperStatus status)
+        public void UpdateScraperStatus(ScraperStatus status)
         {
-            var requestModel = new UpdateScraperStatusRequest
+            if (_configuration.IsAuthorized)
             {
-                Status = status
-            };
+                var requestModel = new UpdateScraperStatusRequest
+                {
+                    Status = status
+                };
 
-            try
-            {
-                var response = _flurlClient.Request("api/v1/settings/windows-service-scraper/scraper-status")
-                    .WithOAuthBearerToken(_configuration.Token)
-                    .PutJsonAsync(requestModel)
-                    .ReceiveJson<BaseResponse>().Result;
-
-                return response;
-            }
-            catch
-            {
-                _configuration.LogOut();
-                return default;
+                try
+                {
+                    var response = _flurlClient.Request("api/v1/settings/windows-service-scraper/scraper-status")
+                        .WithOAuthBearerToken(_configuration.Token)
+                        .PutJsonAsync(requestModel)
+                        .ReceiveJson<BaseResponse>().Result;
+                }
+                catch
+                {
+                    _configuration.LogOut();
+                }
             }
         }
 

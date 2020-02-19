@@ -5,7 +5,6 @@ using ScraperLinkedInService.WorkerService;
 using System;
 using System.ServiceProcess;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ScraperLinkedInService
 {
@@ -34,8 +33,8 @@ namespace ScraperLinkedInService
 
             if (_configuration.IsAuthorized)
             {
-                Task.Run(() => _debugLogService.SendDebugLogAsync(_debugLogService.GenerateViewModel("", "Scheduler service are starting...")));
-                
+                _debugLogService.SendDebugLogAsync("", "Scheduler service are starting...");
+
                 var advanceSettingsResponse = _settingService.GetAdvanceSettings();
                 var intervalType = advanceSettingsResponse.AdvanceSettingsViewModel.IntervalType;
                 var timeStart = advanceSettingsResponse.AdvanceSettingsViewModel.TimeStart;
@@ -44,8 +43,7 @@ namespace ScraperLinkedInService
                 switch (intervalType)
                 {
                     case IntervalType.Hour:
-                        Task.Run(() => _debugLogService.SendDebugLogAsync(_debugLogService.GenerateViewModel("With an interval in Hours", "Start a schedule")));
-
+                        _debugLogService.SendDebugLogAsync("With an interval in Hours", "Start a schedule");
                         MyScheduler.IntervalInHours(timeStart.Hours, timeStart.Minutes, intervalValue,
                         () =>
                         {
@@ -54,8 +52,7 @@ namespace ScraperLinkedInService
                         break;
 
                     case IntervalType.Day:
-                        Task.Run(() => _debugLogService.SendDebugLogAsync(_debugLogService.GenerateViewModel("With an interval in Days", "Start a schedule")));
-
+                        _debugLogService.SendDebugLogAsync("With an interval in Days", "Start a schedule");
                         MyScheduler.IntervalInDays(timeStart.Hours, timeStart.Minutes, intervalValue,
                         () =>
                         {
@@ -64,7 +61,7 @@ namespace ScraperLinkedInService
                         break;
 
                     default:
-                        Task.Run(() => _debugLogService.SendDebugLogAsync(_debugLogService.GenerateViewModel("Invalid IntervalType.Please, check the value of < INTERVAL_TYPE > in App.config.", "Error INTERVAL_TYPE")));
+                        _debugLogService.SendDebugLogAsync("Invalid IntervalType.Please, check the value of < INTERVAL_TYPE > in App.config.", "Error INTERVAL_TYPE");
                         break;
                 }
             }
@@ -72,30 +69,18 @@ namespace ScraperLinkedInService
 
         protected override void OnShutdown()
         {
-            Task.Run(() => _debugLogService.SendDebugLogAsync(_debugLogService.GenerateViewModel("", "Scheduler service is stoping...")));
-
+            _debugLogService.SendDebugLogAsync("", "Scheduler service is stoping...");
             _scraper.Close();
-
-            Task.Run(() => _debugLogService.SendDebugLogAsync(_debugLogService.GenerateViewModel("System shutdown", "Scheduler service stopped")));
-
-            if (_configuration.IsAuthorized)
-            {
-                _settingService.UpdateScraperStatus(ScraperStatus.Exception);
-            }
+            _debugLogService.SendDebugLogAsync("System shutdown", "Scheduler service stopped");
+            _settingService.UpdateScraperStatus(ScraperStatus.Exception);
         }
 
         protected override void OnStop()
         {
-            Task.Run(() => _debugLogService.SendDebugLogAsync(_debugLogService.GenerateViewModel("", "Scheduler service is stoping...")));
-            
+            _debugLogService.SendDebugLogAsync("", "Scheduler service is stoping...");
             _scraper.Close();
-
-            Task.Run(() => _debugLogService.SendDebugLogAsync(_debugLogService.GenerateViewModel("System shutdown", "Scheduler service stopped")));
-
-            if (_configuration.IsAuthorized)
-            {
-                _settingService.UpdateScraperStatus(ScraperStatus.OFF);
-            }
+            _debugLogService.SendDebugLogAsync("System shutdown", "Scheduler service stopped");
+            _settingService.UpdateScraperStatus(ScraperStatus.OFF);
         }
 
         public void RunAsConsole(string[] args)
@@ -111,9 +96,13 @@ namespace ScraperLinkedInService
             {
                 OnStop();
                 _settingService.UpdateScraperStatus(ScraperStatus.Exception);
+                return;
             }
             Thread.Sleep(90000);
-            _scraper.Run();
+            if (_scraper.LoginToLinkedIn())
+            {
+                _scraper.RunScraperProcess();
+            }
             _scraper.Close();
         }
     }
