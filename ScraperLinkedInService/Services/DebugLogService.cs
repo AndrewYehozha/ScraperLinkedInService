@@ -19,7 +19,7 @@ namespace ScraperLinkedInService.Services
             _flurlClient = new FlurlClient(_configuration.ServerURL);
         }
 
-        public void SendDebugLogAsync(string logs, string remarks)
+        public void SendDebugLog(string logs, string remarks)
         {
             if (_configuration.IsAuthorized)
             {
@@ -30,10 +30,11 @@ namespace ScraperLinkedInService.Services
 
                 try
                 {
-                    Task.Run(() => _flurlClient.Request("api/v1/debug-logs/windows-service-scraper")
+                    var response = _flurlClient.Request("api/v1/debug-logs/log")
                         .WithOAuthBearerToken(_configuration.Token)
-                        .PutJsonAsync(requestModel)
-                        .ReceiveJson<DebugLogsResponse>());
+                        .PostJsonAsync(requestModel)
+                        .ReceiveJson<DebugLogsResponse>()
+                        .Result;
                 }
                 catch
                 {
@@ -42,7 +43,7 @@ namespace ScraperLinkedInService.Services
             }
         }
 
-        public void SendDebugLogsAsync(IEnumerable<DebugLogViewModel> debugLogsVM)
+        public void SendDebugLogs(IEnumerable<DebugLogViewModel> debugLogsVM)
         {
             if (_configuration.IsAuthorized)
             {
@@ -53,10 +54,11 @@ namespace ScraperLinkedInService.Services
 
                 try
                 {
-                    Task.Run(() => _flurlClient.Request("api/v1/debug-logs/windows-service-scraper")
+                    var response = _flurlClient.Request("api/v1/debug-logs/logs")
                         .WithOAuthBearerToken(_configuration.Token)
                         .PutJsonAsync(requestModel)
-                        .ReceiveJson<DebugLogsResponse>());
+                        .ReceiveJson<DebugLogsResponse>()
+                        .Result;
                 }
                 catch
                 {
