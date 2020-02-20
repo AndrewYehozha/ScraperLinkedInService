@@ -33,7 +33,7 @@ namespace ScraperLinkedInService
 
             if (_configuration.IsAuthorized)
             {
-                _debugLogService.SendDebugLogAsync("", "Scheduler service are starting...");
+                _debugLogService.SendDebugLog("", "Scheduler service are starting...");
 
                 var advanceSettingsResponse = _settingService.GetAdvanceSettings();
                 var intervalType = advanceSettingsResponse.AdvanceSettingsViewModel.IntervalType;
@@ -43,7 +43,7 @@ namespace ScraperLinkedInService
                 switch (intervalType)
                 {
                     case IntervalType.Hour:
-                        _debugLogService.SendDebugLogAsync("With an interval in Hours", "Start a schedule");
+                        _debugLogService.SendDebugLog("With an interval in Hours", "Start a schedule");
                         MyScheduler.IntervalInHours(timeStart.Hours, timeStart.Minutes, intervalValue,
                         () =>
                         {
@@ -52,7 +52,7 @@ namespace ScraperLinkedInService
                         break;
 
                     case IntervalType.Day:
-                        _debugLogService.SendDebugLogAsync("With an interval in Days", "Start a schedule");
+                        _debugLogService.SendDebugLog("With an interval in Days", "Start a schedule");
                         MyScheduler.IntervalInDays(timeStart.Hours, timeStart.Minutes, intervalValue,
                         () =>
                         {
@@ -61,7 +61,7 @@ namespace ScraperLinkedInService
                         break;
 
                     default:
-                        _debugLogService.SendDebugLogAsync("Invalid IntervalType.Please, check the value of < INTERVAL_TYPE > in App.config.", "Error INTERVAL_TYPE");
+                        _debugLogService.SendDebugLog("Invalid IntervalType.Please, check the value of < INTERVAL_TYPE > in App.config.", "Error INTERVAL_TYPE");
                         break;
                 }
             }
@@ -69,17 +69,17 @@ namespace ScraperLinkedInService
 
         protected override void OnShutdown()
         {
-            _debugLogService.SendDebugLogAsync("", "Scheduler service is stoping...");
+            _debugLogService.SendDebugLog("", "Scheduler service is stoping...");
             _scraper.Close();
-            _debugLogService.SendDebugLogAsync("System shutdown", "Scheduler service stopped");
+            _debugLogService.SendDebugLog("System shutdown", "Scheduler service stopped");
             _settingService.UpdateScraperStatus(ScraperStatus.Exception);
         }
 
         protected override void OnStop()
         {
-            _debugLogService.SendDebugLogAsync("", "Scheduler service is stoping...");
+            _debugLogService.SendDebugLog("", "Scheduler service is stoping...");
             _scraper.Close();
-            _debugLogService.SendDebugLogAsync("System shutdown", "Scheduler service stopped");
+            _debugLogService.SendDebugLog("System shutdown", "Scheduler service stopped");
             _settingService.UpdateScraperStatus(ScraperStatus.OFF);
         }
 
@@ -98,7 +98,9 @@ namespace ScraperLinkedInService
                 _settingService.UpdateScraperStatus(ScraperStatus.Exception);
                 return;
             }
+
             Thread.Sleep(90000);
+
             if (_scraper.LoginToLinkedIn())
             {
                 _scraper.RunScraperProcess();
