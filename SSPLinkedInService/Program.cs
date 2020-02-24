@@ -1,25 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.ServiceProcess;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SSPLinkedInService
+﻿namespace SSPLinkedInService
 {
     static class Program
     {
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        static void Main()
+        public static void Main(string[] args)
         {
-            ServiceBase[] ServicesToRun;
-            ServicesToRun = new ServiceBase[]
-            {
-                new SSPService()
-            };
-            ServiceBase.Run(ServicesToRun);
+            var service = new SSPService();
+#if (DEBUG)
+            service.RunAsConsole(args);
+#else
+            ServiceBase.Run(new ServiceBase[] { service });
+#endif
         }
     }
 }
