@@ -1,4 +1,4 @@
-﻿namespace ScraperLinkedInService.Models.Response
+﻿namespace SSPLinkedInService.Models.Response
 {
     public class BaseResponse
     {
