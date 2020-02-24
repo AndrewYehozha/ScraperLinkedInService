@@ -31,6 +31,7 @@ namespace ScraperLinkedInService
         {
             _accountService.Authorization();
 
+            RunScraper();
             if (_configuration.IsAuthorized)
             {
                 _debugLogService.SendDebugLog("", "Scheduler service are starting...");
@@ -105,6 +106,7 @@ namespace ScraperLinkedInService
             {
                 _scraper.RunScraperProcess();
             }
+
             _scraper.Close();
         }
     }

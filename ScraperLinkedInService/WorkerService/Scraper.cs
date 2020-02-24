@@ -98,7 +98,7 @@ namespace ScraperLinkedInService.WorkerService
                 GoToUrl("https://www.linkedin.com");
 
                 var cookie = new Cookie("li_at", _settingsVM.Token.Trim(), ".www.linkedin.com", "/", DateTime.Now.AddDays(1));
-                //_driver.Manage().Cookies.AddCookie(cookie);
+                _driver.Manage().Cookies.AddCookie(cookie);
                 GoToUrl("https://www.linkedin.com");
 
                 // Validation of the entered token
@@ -157,7 +157,10 @@ namespace ScraperLinkedInService.WorkerService
             var rolesSearch = _settingsVM.RolesSearch.Split(',');
             var technologiesSearch = _settingsVM.TechnologiesSearch.Split(',');
             var profilesForSearch = _profileService.GetProfilesForSearch(_advanceSettingsVM.ProfileBatchSize);
-            //GetEmployeesProfiles(profilesForSearch, rolesSearch, technologiesSearch);
+            if (profilesForSearch?.ProfilesViewModel != null && profilesForSearch.ProfilesViewModel.Any())
+            {
+                GetEmployeesProfiles(profilesForSearch.ProfilesViewModel, rolesSearch, technologiesSearch);
+            }
 
             _debugLogService.SendDebugLog("", "End scraper process");
             var nextRunDate = _advanceSettingsVM.IntervalType == IntervalType.Day ? DateTime.UtcNow.AddDays(_advanceSettingsVM.IntervalValue).Date
@@ -174,7 +177,7 @@ namespace ScraperLinkedInService.WorkerService
 
             foreach (var company in companies)
             {
-                //    Thread.Sleep(30000); //A break between requests.
+                Thread.Sleep(30000); //A break between requests.
 
                 _debugLogService.SendDebugLog(company.LinkedInURL, "Getting employees for company with url");
                 GoToUrl(company.LinkedInURL, $"Error opening company page with url: { company.LinkedInURL }");
@@ -203,10 +206,28 @@ namespace ScraperLinkedInService.WorkerService
                 var logoCompanyUrlAttr = FindElementByClassName("org-top-card-primary-content__logo", false, false)?.GetAttribute("src");
                 if (!string.IsNullOrEmpty(logoCompanyUrlAttr))
                 {
-                    company.LogoUrl = logoCompanyUrlAttr.Contains("https://media.licdn.com") ? logoCompanyUrlAttr : string.Empty;
+                    company.LogoUrl = logoCompanyUrlAttr.Contains("https://media-exp1.licdn.com") ? logoCompanyUrlAttr : string.Empty;
+                }
+
+                if (string.IsNullOrEmpty(company.OrganizationName))
+                {
+                    var organizationName = FindElementByCssSelector("h1.org-top-card-summary__title > span", false)?.Text;
+                    company.OrganizationName = organizationName ?? string.Empty;
                 }
 
                 generalInformationButton.Click();
+
+                if (string.IsNullOrEmpty(company.Website))
+                {
+                    var organizationWebsite = FindElementByCssSelector(".overflow-hidden > dd > a .link-without-visited-state", false)?.Text;
+                    company.Website = organizationWebsite ?? string.Empty;
+                    if (string.IsNullOrEmpty(company.Website))
+                    {
+                        company.ExecutionStatus = ExecutionStatus.Failed;
+                        _companyService.UpdateCompany(company);
+                        continue;
+                    }
+                }
 
                 var specialtyCompanyTitleText = FindElementByCssSelector(".overflow-hidden dt:last-of-type", false)?.Text;
                 if (specialtyCompanyTitleText != null && (new List<string> { "Специализация", "Specialties" }).Contains(specialtyCompanyTitleText))
@@ -230,7 +251,8 @@ namespace ScraperLinkedInService.WorkerService
                     }
 
                     var profiles = new List<ProfileViewModel>();
-                    for (int i = 1; ; i++)
+                    var startPage = company.LastScrapedPage > 0 ? company.LastScrapedPage : 1;
+                    for (int i = startPage; ; i++)
                     {
                         GoToUrl($"{ paginationUrl }&page={ i }"); //Pagination Employees
                         if (CheckBrowserErrors() || !CheckLinkedInAuthorization() || !_configuration.IsAuthorized)
@@ -260,7 +282,7 @@ namespace ScraperLinkedInService.WorkerService
                                 string href = employeeLink.GetAttribute("href");
                                 if (href != $"{ paginationUrl }&page={ i }#")
                                 {
-                                    profiles.Add(new ProfileViewModel { ProfileUrl = href, CompanyID = company.Id });
+                                    profiles.Add(new ProfileViewModel { ProfileUrl = href, CompanyID = company.Id, AccountID = company.AccountId });
                                 }
                             }
 
@@ -270,9 +292,12 @@ namespace ScraperLinkedInService.WorkerService
                         if (profiles.Any() && profiles.Count >= 100)
                         {
                             _profileService.InsertProfiles(profiles);
+                            _companyService.UpdateLastPageCompany(company.Id, i);
                             profiles = default;
                         }
                     }
+
+                    _profileService.InsertProfiles(profiles);
                 }
 
                 company.ExecutionStatus = ExecutionStatus.Success;
@@ -280,6 +305,128 @@ namespace ScraperLinkedInService.WorkerService
             }
 
             return !isError;
+        }
+
+        private void GetEmployeesProfiles(IEnumerable<ProfileViewModel> employees, IEnumerable<string> rolesSearch, IEnumerable<string> technologiesSearch)
+        {
+            _debugLogService.SendDebugLog($"[ { string.Join(", ", employees.Select(x => $"{ x.ProfileUrl }")) } ]", "Profiles URLs to scrape");
+            var profilesReady = new List<ProfileViewModel>();
+
+            foreach (var employee in employees)
+            {
+                Thread.Sleep(10000); //A break between requests.
+
+                _debugLogService.SendDebugLog(employee.ProfileUrl, "Opening profile");
+                GoToUrl(employee.ProfileUrl, "", $"Error opening profile page with url: { employee.ProfileUrl }");
+
+                Thread.Sleep(3000);
+
+                if (CheckBrowserErrors() || !CheckLinkedInAuthorization() || !_configuration.IsAuthorized)
+                {
+                    return;
+                }
+
+                // Stop searching if incorrect url
+                var unavailableProfileElement = FindElementByClassName("profile-unavailable", false, true, employee.ProfileUrl, "Could not scrape profile, because this profile is not available");
+                if (unavailableProfileElement != null)
+                {
+                    employee.ExecutionStatus = ExecutionStatus.Failed;
+                    profilesReady.Add(employee);
+                    continue;
+                }
+
+                _debugLogService.SendDebugLog("", "Scrolling to load all data of the profile...");
+
+                var fullNameElement = FindElementByCssSelector(".pv-top-card-v3--list .break-words", false);
+                if (fullNameElement != null)
+                {
+                    employee.FullName = fullNameElement.Text;
+                    employee.FirstName = employee.FullName.Split(' ')[0];
+                    employee.LastName = employee.FullName.Split(' ')[1];
+                }
+
+                var lastJobsElements = FindElementsByCssSelector(".pv-top-card-v3--experience-list-item > span", false);
+                if (lastJobsElements == null && !lastJobsElements.Any(x => x.Text.ToUpper().Contains(employee.OrganizationName.ToUpper())))
+                {
+                    employee.ProfileStatus = ProfileStatus.Unsuited;
+                }
+
+                var jobElement = FindElementByCssSelector(".flex-1 h2", false);
+                employee.Job = jobElement != null ? jobElement.Text : string.Empty;
+                employee.AllSkills = string.Empty;
+
+                for (int i = 0; i < 6; i++)
+                {
+                    js.ExecuteScript("window.scrollBy(0,750)");
+
+                    if (employee.ProfileStatus == ProfileStatus.Unsuited)
+                    {
+                        var lastWorkElementH3 = FindElementByCssSelector(".pv-profile-section__list-item .pv-entity__company-summary-info h3, .pv-profile-section__list-item .pv-entity__summary-info h3", false);
+                        var lastWorkH3 = lastWorkElementH3 != null ? lastWorkElementH3.Text : string.Empty;
+                        var lastWorkElementP = FindElementByCssSelector(".pv-profile-section__list-item .pv-entity__company-summary-info .pv-entity__secondary-title, .pv-profile-section__list-item .pv-entity__summary-info .pv-entity__secondary-title", false);
+                        var lastWorkP = lastWorkElementP != null ? lastWorkElementP.Text : string.Empty;
+                        if (lastWorkH3.ToUpper().Contains(employee.OrganizationName.ToUpper()) || lastWorkP.ToUpper().Contains(employee.OrganizationName.ToUpper()))
+                        {
+                            employee.ProfileStatus = ProfileStatus.Undefined;
+                        }
+                    }
+
+                    var skillsBlock = FindElementByClassName("pv-skill-category-entity__name-text", false, false);
+                    if (skillsBlock == null)
+                    {
+                        continue;
+                    }
+
+                    js.ExecuteScript("window.scrollBy(0,300)");
+                    Thread.Sleep(500);
+                    //Find Show more button
+                    var loadSkillsButton = FindElementByClassName("pv-skills-section__additional-skills", false, false);
+                    if (loadSkillsButton != null)
+                    {
+                        loadSkillsButton.Click();
+                        js.ExecuteScript("window.scrollBy(0,250)");
+                    }
+
+                    Thread.Sleep(500); // Waiting for loading block skills
+
+                    var arrSkills = new List<string>();
+                    var skillsNamesElements = FindElementsByClassName("pv-skill-category-entity__name-text", false);
+                    if (skillsNamesElements != null)
+                    {
+                        foreach (var skillNameElement in skillsNamesElements)
+                        {
+                            arrSkills.Add(skillNameElement.Text);
+                        }
+
+                        employee.AllSkills = string.Join(",", arrSkills);
+                    }
+                    else
+                    {
+                        employee.AllSkills = string.Empty;
+                    }
+
+                    break;
+                }
+
+                if (!string.IsNullOrEmpty(employee.AllSkills) || !string.IsNullOrEmpty(employee.Job))
+                {
+                    _debugLogService.SendDebugLog("", "All data loaded");
+                }
+                else
+                {
+                    _debugLogService.SendDebugLog(employee.ProfileUrl, "Could not scrape because: Could not load the profile");
+                    employee.ExecutionStatus = ExecutionStatus.Failed;
+                }
+
+                profilesReady.Add(employee);
+                if (profilesReady.Count >= 50)
+                {
+                    _profileService.UpdateProfiles(profilesReady, rolesSearch, technologiesSearch);
+                    profilesReady = default;
+                }
+            }
+
+            _profileService.UpdateProfiles(profilesReady, rolesSearch, technologiesSearch);
         }
 
         public void Close()
@@ -311,7 +458,10 @@ namespace ScraperLinkedInService.WorkerService
         private bool CheckLinkedInAuthorization()
         {
             var errorElement = FindElementByCssSelector(".login__form_action_container,.join-form-container,.login-form,body > #FunCAPTCHA", false, "Invalid Token", "Error");
-            return errorElement == null;
+            if (errorElement != null)
+                return LoginToLinkedIn();
+
+            return true;
         }
 
         private bool SignIn()
