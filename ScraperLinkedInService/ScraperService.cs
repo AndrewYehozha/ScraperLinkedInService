@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace ScraperLinkedInService
 {
-    public partial class Service : ServiceBase
+    public partial class ScraperService : ServiceBase
     {
         private readonly Scraper _scraper;
         private readonly AccountService _accountService;
@@ -16,7 +16,7 @@ namespace ScraperLinkedInService
         private readonly DebugLogService _debugLogService;
         private AppServiceConfiguration _configuration;
 
-        public Service()
+        public ScraperService()
         {
             _scraper = new Scraper();
             _accountService = new AccountService();

@@ -89,19 +89,19 @@
     <Compile Include="Models\Types\IntervalType.cs" />
     <Compile Include="Models\Types\ProfileStatus.cs" />
     <Compile Include="Models\Types\ScraperStatus.cs" />
-    <Compile Include="ProjectInstaller.cs">
+    <Compile Include="ScraperProjectInstaller.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="ProjectInstaller.Designer.cs">
-      <DependentUpon>ProjectInstaller.cs</DependentUpon>
+    <Compile Include="ScraperProjectInstaller.Designer.cs">
+      <DependentUpon>ScraperProjectInstaller.cs</DependentUpon>
     </Compile>
     <Compile Include="Scheduler\MyScheduler.cs" />
     <Compile Include="Scheduler\SchedulerService.cs" />
-    <Compile Include="Service.cs">
+    <Compile Include="ScraperService.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Service.Designer.cs">
-      <DependentUpon>Service.cs</DependentUpon>
+    <Compile Include="ScraperService.Designer.cs">
+      <DependentUpon>ScraperService.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -117,8 +117,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="ProjectInstaller.resx">
-      <DependentUpon>ProjectInstaller.cs</DependentUpon>
+    <EmbeddedResource Include="ScraperProjectInstaller.resx">
+      <DependentUpon>ScraperProjectInstaller.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />

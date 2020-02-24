@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 namespace ScraperLinkedInService
 {
     [RunInstaller(true)]
-    public partial class ProjectInstaller : System.Configuration.Install.Installer
+    public partial class ScraperProjectInstaller : System.Configuration.Install.Installer
     {
-        public ProjectInstaller()
+        public ScraperProjectInstaller()
         {
             InitializeComponent();
         }

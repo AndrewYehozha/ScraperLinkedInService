@@ -1,6 +1,6 @@
 ﻿namespace ScraperLinkedInService
 {
-    partial class ProjectInstaller
+    partial class ScraperProjectInstaller
     {
         /// <summary>
         /// Required designer variable.
@@ -33,18 +33,19 @@
             // 
             // ScraperLinkedInProcessInstaller
             // 
-            this.ScraperLinkedInProcessInstaller.Account = System.ServiceProcess.ServiceAccount.NetworkService;
+            this.ScraperLinkedInProcessInstaller.Account = System.ServiceProcess.ServiceAccount.LocalService;
             this.ScraperLinkedInProcessInstaller.Password = null;
             this.ScraperLinkedInProcessInstaller.Username = null;
             // 
             // ScraperLinkedInInstaller
             // 
             this.ScraperLinkedInInstaller.DelayedAutoStart = true;
+            this.ScraperLinkedInInstaller.Description = "Scraper LinkedIn service";
             this.ScraperLinkedInInstaller.DisplayName = "ScraperLinkedInService";
             this.ScraperLinkedInInstaller.ServiceName = "ScraperLinkedInService";
             this.ScraperLinkedInInstaller.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
             // 
-            // ProjectInstaller
+            // ScraperProjectInstaller
             // 
             this.Installers.AddRange(new System.Configuration.Install.Installer[] {
             this.ScraperLinkedInProcessInstaller,

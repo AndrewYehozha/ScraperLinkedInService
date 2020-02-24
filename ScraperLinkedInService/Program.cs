@@ -7,7 +7,7 @@
         /// </summary>
         public static void Main(string[] args)
         {
-            var service = new Service();
+            var service = new ScraperService();
 #if (DEBUG)
             service.RunAsConsole(args);
 #else
