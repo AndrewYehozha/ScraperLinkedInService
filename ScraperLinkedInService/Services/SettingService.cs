@@ -15,13 +15,14 @@ namespace ScraperLinkedInService.Services
         {
             _configuration = AppServiceConfiguration.Instance;
             _flurlClient = new FlurlClient(_configuration.ServerURL);
+            _flurlClient.Settings.Timeout = TimeSpan.FromSeconds(60);
         }
 
         public AdvanceSettingsResponse GetAdvanceSettings()
         {
             try
             {
-                var response = _flurlClient.Request("api/v1/advance-settings")
+                var response = _flurlClient.Request("api/v1/advance-settings/setting")
                     .WithOAuthBearerToken(_configuration.Token)
                     .GetJsonAsync<AdvanceSettingsResponse>()
                     .Result;
@@ -39,7 +40,7 @@ namespace ScraperLinkedInService.Services
         {
             try
             {
-                var response = _flurlClient.Request("api/v1/settings")
+                var response = _flurlClient.Request("api/v1/settings/setting")
                     .WithOAuthBearerToken(_configuration.Token)
                     .GetJsonAsync<SettingsResponse>()
                     .Result;
@@ -64,7 +65,7 @@ namespace ScraperLinkedInService.Services
 
                 try
                 {
-                    var response = _flurlClient.Request("api/v1/settings/windows-service-scraper/scraper-status")
+                    var response = _flurlClient.Request("api/v1/settings/setting/scraper-status")
                         .WithOAuthBearerToken(_configuration.Token)
                         .PutJsonAsync(requestModel)
                         .ReceiveJson<BaseResponse>().Result;

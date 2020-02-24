@@ -15,6 +15,7 @@ namespace ScraperLinkedInService.Services
         {
             _configuration = AppServiceConfiguration.Instance;
             _flurlClient = new FlurlClient(_configuration.ServerURL);
+            _flurlClient.Settings.Timeout = TimeSpan.FromSeconds(60);
         }
 
         public AuthorizationServiceResponse Authorization()

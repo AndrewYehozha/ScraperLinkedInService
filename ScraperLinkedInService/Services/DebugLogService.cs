@@ -4,7 +4,6 @@ using ScraperLinkedInService.Models.Request;
 using ScraperLinkedInService.Models.Response;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace ScraperLinkedInService.Services
 {
@@ -17,6 +16,7 @@ namespace ScraperLinkedInService.Services
         {
             _configuration = AppServiceConfiguration.Instance;
             _flurlClient = new FlurlClient(_configuration.ServerURL);
+            _flurlClient.Settings.Timeout = TimeSpan.FromSeconds(60);
         }
 
         public void SendDebugLog(string logs, string remarks)
@@ -54,9 +54,9 @@ namespace ScraperLinkedInService.Services
 
                 try
                 {
-                    var response = _flurlClient.Request("api/v1/debug-logs/logs")
+                    var response = _flurlClient.Request("api/v1/debug-logs/")
                         .WithOAuthBearerToken(_configuration.Token)
-                        .PutJsonAsync(requestModel)
+                        .PostJsonAsync(requestModel)
                         .ReceiveJson<DebugLogsResponse>()
                         .Result;
                 }
