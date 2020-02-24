@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{32E0197B-26F6-467D-81B8-2EFF1B2E8415}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>ScraperLinkedInService</RootNamespace>
     <AssemblyName>ScraperLinkedInService</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
@@ -32,11 +32,29 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Flurl, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Flurl.3.0.0-pre3\lib\net40\Flurl.dll</HintPath>
+    </Reference>
+    <Reference Include="Flurl.Http, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Flurl.Http.3.0.0-pre3\lib\net46\Flurl.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
+    <Reference Include="System.Runtime" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -44,8 +62,33 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml" />
+    <Reference Include="WebDriver, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selenium.WebDriver.4.0.0-alpha04\lib\net46\WebDriver.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppServiceConfiguration.cs" />
+    <Compile Include="Models\Entities\AdvanceSettingsViewModel.cs" />
+    <Compile Include="Models\Entities\CompanyViewModel.cs" />
+    <Compile Include="Models\Entities\DebugLogViewModel.cs" />
+    <Compile Include="Models\Entities\ProfileViewModel.cs" />
+    <Compile Include="Models\Entities\SettingsViewModel.cs" />
+    <Compile Include="Models\Request\AuthorizationServiceRequest.cs" />
+    <Compile Include="Models\Request\CompanyRequest.cs" />
+    <Compile Include="Models\Request\DebugLogRequest.cs" />
+    <Compile Include="Models\Request\ProfilesRequest.cs" />
+    <Compile Include="Models\Request\UpdateScraperStatusRequest.cs" />
+    <Compile Include="Models\Response\AuthorizationServiceResponse.cs" />
+    <Compile Include="Models\Response\BaseResponse.cs" />
+    <Compile Include="Models\Response\AdvanceSettingsResponse.cs" />
+    <Compile Include="Models\Response\CompaniesResponse.cs" />
+    <Compile Include="Models\Response\DebugLogsResponse.cs" />
+    <Compile Include="Models\Response\ProfilesResponse.cs" />
+    <Compile Include="Models\Response\SettingsResponse.cs" />
+    <Compile Include="Models\Types\ExecutionStatus.cs" />
+    <Compile Include="Models\Types\IntervalType.cs" />
+    <Compile Include="Models\Types\ProfileStatus.cs" />
+    <Compile Include="Models\Types\ScraperStatus.cs" />
     <Compile Include="ProjectInstaller.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -62,17 +105,22 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\AccountService.cs" />
+    <Compile Include="Services\CompanyService.cs" />
+    <Compile Include="Services\DebugLogService.cs" />
+    <Compile Include="Services\ProfileService.cs" />
+    <Compile Include="Services\SettingService.cs" />
+    <Compile Include="WorkerService\Scraper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ProjectInstaller.resx">
       <DependentUpon>ProjectInstaller.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Services\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ScraperLinkedInService
+﻿namespace ScraperLinkedInService
 {
     public static class Program
     {
@@ -9,21 +7,12 @@ namespace ScraperLinkedInService
         /// </summary>
         public static void Main(string[] args)
         {
-            try
-            {
-                var service = new Service();
+            var service = new Service();
 #if (DEBUG)
-                service.RunAsConsole(args);
+            service.RunAsConsole(args);
 #else
                 ServiceBase.Run(new ServiceBase[] { service });
 #endif
-            }
-            catch (Exception ex)
-            {
-#if (DEBUG)
-                Console.WriteLine(ex);
-#endif
-            }
         }
     }
 }
