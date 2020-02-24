@@ -26,12 +26,10 @@ namespace ScraperLinkedInService
             InitializeComponent();
         }
 
-
         protected override void OnStart(string[] args)
         {
             _accountService.Authorization();
 
-            RunScraper();
             if (_configuration.IsAuthorized)
             {
                 _debugLogService.SendDebugLog("", "Scheduler service are starting...");
@@ -72,16 +70,16 @@ namespace ScraperLinkedInService
         {
             _debugLogService.SendDebugLog("", "Scheduler service is stoping...");
             _scraper.Close();
-            _debugLogService.SendDebugLog("System shutdown", "Scheduler service stopped");
             _settingService.UpdateScraperStatus(ScraperStatus.Exception);
+            _debugLogService.SendDebugLog("System shutdown", "Scheduler service stopped");
         }
 
         protected override void OnStop()
         {
             _debugLogService.SendDebugLog("", "Scheduler service is stoping...");
             _scraper.Close();
-            _debugLogService.SendDebugLog("System shutdown", "Scheduler service stopped");
             _settingService.UpdateScraperStatus(ScraperStatus.OFF);
+            _debugLogService.SendDebugLog("", "Scheduler service stopped");
         }
 
         public void RunAsConsole(string[] args)
