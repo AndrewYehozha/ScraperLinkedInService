@@ -1,12 +1,12 @@
 ﻿using Flurl.Http;
-using ScraperLinkedInService.Models.Request;
-using ScraperLinkedInService.Models.Response;
+using SSPLinkedInService.Models.Request;
+using SSPLinkedInService.Models.Response;
 using System;
 using System.Net;
 
-namespace ScraperLinkedInService.Services
+namespace SSPLinkedInService.Services
 {
-    public class AccountService : IDisposable
+    public class AccountService
     {
         private AppServiceConfiguration _configuration;
         private readonly IFlurlClient _flurlClient;
@@ -34,6 +34,24 @@ namespace ScraperLinkedInService.Services
 
                 _configuration.IsAuthorized = !string.IsNullOrEmpty(response.Token) && response.StatusCode == (int)HttpStatusCode.OK;
                 _configuration.Token = !string.IsNullOrEmpty(response.Token) ? response.Token : string.Empty;
+
+                return response;
+            }
+            catch
+            {
+                _configuration.LogOut();
+                return default;
+            }
+        }
+
+        public AccountsIdsResponse GetActiveAccountsIds()
+        {
+            try
+            {
+                var response = _flurlClient.Request($"api/v1/accounts/active/ids")
+                    .WithOAuthBearerToken(_configuration.Token)
+                    .GetJsonAsync<AccountsIdsResponse>()
+                    .Result;
 
                 return response;
             }

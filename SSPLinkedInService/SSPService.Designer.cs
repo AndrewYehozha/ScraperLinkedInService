@@ -1,6 +1,6 @@
-﻿namespace ScraperLinkedInService
+﻿namespace SSPLinkedInService
 {
-    partial class Service
+    partial class SSPService
     {
         /// <summary> 
         /// Required designer variable.
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            this.ServiceName = "ScraperLinkedInService";
+            this.ServiceName = "Service1";
         }
 
         #endregion

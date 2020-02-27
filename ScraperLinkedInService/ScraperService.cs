@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace ScraperLinkedInService
 {
-    public partial class Service : ServiceBase
+    public partial class ScraperService : ServiceBase
     {
         private readonly Scraper _scraper;
         private readonly AccountService _accountService;
@@ -16,7 +16,7 @@ namespace ScraperLinkedInService
         private readonly DebugLogService _debugLogService;
         private AppServiceConfiguration _configuration;
 
-        public Service()
+        public ScraperService()
         {
             _scraper = new Scraper();
             _accountService = new AccountService();
@@ -26,12 +26,10 @@ namespace ScraperLinkedInService
             InitializeComponent();
         }
 
-
         protected override void OnStart(string[] args)
         {
             _accountService.Authorization();
 
-            RunScraper();
             if (_configuration.IsAuthorized)
             {
                 _debugLogService.SendDebugLog("", "Scheduler service are starting...");
@@ -72,16 +70,16 @@ namespace ScraperLinkedInService
         {
             _debugLogService.SendDebugLog("", "Scheduler service is stoping...");
             _scraper.Close();
-            _debugLogService.SendDebugLog("System shutdown", "Scheduler service stopped");
             _settingService.UpdateScraperStatus(ScraperStatus.Exception);
+            _debugLogService.SendDebugLog("System shutdown", "Scheduler service stopped");
         }
 
         protected override void OnStop()
         {
             _debugLogService.SendDebugLog("", "Scheduler service is stoping...");
             _scraper.Close();
-            _debugLogService.SendDebugLog("System shutdown", "Scheduler service stopped");
             _settingService.UpdateScraperStatus(ScraperStatus.OFF);
+            _debugLogService.SendDebugLog("", "Scheduler service stopped");
         }
 
         public void RunAsConsole(string[] args)

@@ -4,14 +4,29 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{32E0197B-26F6-467D-81B8-2EFF1B2E8415}</ProjectGuid>
+    <ProjectGuid>{591E49BD-4AF6-4B67-B048-9079DAC84590}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>ScraperLinkedInService</RootNamespace>
-    <AssemblyName>ScraperLinkedInService</AssemblyName>
+    <RootNamespace>SSPLinkedInService</RootNamespace>
+    <AssemblyName>SSPLinkedInService</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -36,6 +51,12 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ARSoft.Tools.Net, Version=2.2.9.0, Culture=neutral, PublicKeyToken=1940454cd762ec57, processorArchitecture=MSIL">
+      <HintPath>..\packages\ARSoft.Tools.Net.2.2.9\lib\net45\ARSoft.Tools.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.1.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+      <HintPath>..\packages\BouncyCastle.1.8.1\lib\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
     <Reference Include="Flurl, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Flurl.3.0.0-pre3\lib\net40\Flurl.dll</HintPath>
     </Reference>
@@ -43,18 +64,13 @@
       <HintPath>..\packages\Flurl.Http.3.0.0-pre3\lib\net46\Flurl.Http.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
-    <Reference Include="System.Runtime" />
-    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -62,63 +78,78 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml" />
-    <Reference Include="WebDriver, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selenium.WebDriver.4.0.0-alpha04\lib\net46\WebDriver.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppServiceConfiguration.cs" />
-    <Compile Include="Models\Entities\AdvanceSettingsViewModel.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Models\Entities\CompanyProfilesViewModel.cs" />
     <Compile Include="Models\Entities\CompanyViewModel.cs" />
     <Compile Include="Models\Entities\DebugLogViewModel.cs" />
     <Compile Include="Models\Entities\ProfileViewModel.cs" />
     <Compile Include="Models\Entities\SettingsViewModel.cs" />
+    <Compile Include="Models\Entities\SuitableProfileViewModel.cs" />
     <Compile Include="Models\Request\AuthorizationServiceRequest.cs" />
-    <Compile Include="Models\Request\CompanyRequest.cs" />
     <Compile Include="Models\Request\DebugLogRequest.cs" />
-    <Compile Include="Models\Request\ProfilesRequest.cs" />
+    <Compile Include="Models\Request\SuitableProfilesRequest.cs" />
+    <Compile Include="Models\Request\UpdateProfileExecutionStatusRequest.cs" />
     <Compile Include="Models\Request\UpdateScraperStatusRequest.cs" />
+    <Compile Include="Models\Response\AccountsIdsResponse.cs" />
     <Compile Include="Models\Response\AuthorizationServiceResponse.cs" />
     <Compile Include="Models\Response\BaseResponse.cs" />
-    <Compile Include="Models\Response\AdvanceSettingsResponse.cs" />
-    <Compile Include="Models\Response\CompaniesResponse.cs" />
-    <Compile Include="Models\Response\DebugLogsResponse.cs" />
-    <Compile Include="Models\Response\ProfilesResponse.cs" />
+    <Compile Include="Models\Response\CompaniesProfilesResponse.cs" />
+    <Compile Include="Models\Response\DebugLogResponse.cs" />
     <Compile Include="Models\Response\SettingsResponse.cs" />
+    <Compile Include="Models\Types\EmailValidationResult.cs" />
     <Compile Include="Models\Types\ExecutionStatus.cs" />
-    <Compile Include="Models\Types\IntervalType.cs" />
     <Compile Include="Models\Types\ProfileStatus.cs" />
     <Compile Include="Models\Types\ScraperStatus.cs" />
-    <Compile Include="ScraperProjectInstaller.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ScraperProjectInstaller.Designer.cs">
-      <DependentUpon>ScraperProjectInstaller.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Scheduler\MyScheduler.cs" />
-    <Compile Include="Scheduler\SchedulerService.cs" />
-    <Compile Include="ScraperService.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ScraperService.Designer.cs">
-      <DependentUpon>ScraperService.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AccountService.cs" />
     <Compile Include="Services\CompanyService.cs" />
     <Compile Include="Services\DebugLogService.cs" />
+    <Compile Include="Services\EmailValidatorService\EmailHandler.cs" />
+    <Compile Include="Services\EmailValidatorService\Validator\EmailValidatorException.cs" />
+    <Compile Include="Services\EmailValidatorService\Validator\EmailValidator.cs" />
+    <Compile Include="Services\EmailValidatorService\Validator\SmtpClient.cs" />
+    <Compile Include="Services\EmailValidatorService\Validator\SmtpClientException.cs" />
+    <Compile Include="Services\EmailValidatorService\Validator\SmtpClientTimeoutException.cs" />
     <Compile Include="Services\ProfileService.cs" />
     <Compile Include="Services\SettingService.cs" />
-    <Compile Include="WorkerService\Scraper.cs" />
+    <Compile Include="Services\SuitableProfileService.cs" />
+    <Compile Include="SSPProjectInstaller.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SSPProjectInstaller.Designer.cs">
+      <DependentUpon>SSPProjectInstaller.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SSPService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SSPService.Designer.cs">
+      <DependentUpon>SSPService.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WorkerService\SearchSuitableProfiles.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="ScraperProjectInstaller.resx">
-      <DependentUpon>ScraperProjectInstaller.cs</DependentUpon>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.6.1 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SSPProjectInstaller.resx">
+      <DependentUpon>SSPProjectInstaller.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />

@@ -1,6 +1,7 @@
-﻿using System.Configuration;
+﻿using SSPLinkedInService.Extensions;
+using System.Configuration;
 
-namespace ScraperLinkedInService
+namespace SSPLinkedInService
 {
     public class AppServiceConfiguration
     {
@@ -9,19 +10,21 @@ namespace ScraperLinkedInService
 
         public string APIKey { get; set; }
         public string ServerURL { get; set; }
+        public int SearchProfilesBatchSize { get; set; }
         public string Token { get; set; }
-        public int AccountId { get; set; }
         public bool IsAuthorized { get; set; }
 
         public static AppServiceConfiguration Instance
         {
             get
             {
-                if(_instance == null) {
+                if (_instance == null)
+                {
                     _instance = new AppServiceConfiguration
                     {
                         APIKey = ConfigurationManager.AppSettings["APIKey"] ?? string.Empty,
                         ServerURL = ConfigurationManager.AppSettings["ServerURL"] ?? string.Empty,
+                        SearchProfilesBatchSize = (ConfigurationManager.AppSettings["SEARCH_PROFILES_BATCH_SIZE"]).AsInt32(50),
                         Token = string.Empty,
                         IsAuthorized = false
                     };

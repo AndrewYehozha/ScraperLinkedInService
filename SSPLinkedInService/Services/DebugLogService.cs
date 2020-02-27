@@ -1,11 +1,10 @@
 ﻿using Flurl.Http;
-using ScraperLinkedInService.Models.Entities;
-using ScraperLinkedInService.Models.Request;
-using ScraperLinkedInService.Models.Response;
+using SSPLinkedInService.Models.Entities;
+using SSPLinkedInService.Models.Request;
+using SSPLinkedInService.Models.Response;
 using System;
-using System.Collections.Generic;
 
-namespace ScraperLinkedInService.Services
+namespace SSPLinkedInService.Services
 {
     public class DebugLogService : IDisposable
     {
@@ -34,30 +33,6 @@ namespace ScraperLinkedInService.Services
                         .WithOAuthBearerToken(_configuration.Token)
                         .PostJsonAsync(requestModel)
                         .ReceiveJson<DebugLogResponse>()
-                        .Result;
-                }
-                catch
-                {
-                    _configuration.LogOut();
-                }
-            }
-        }
-
-        public void SendDebugLogs(IEnumerable<DebugLogViewModel> debugLogsVM)
-        {
-            if (_configuration.IsAuthorized)
-            {
-                var requestModel = new DebugLogsRequest
-                {
-                    DebugLogsViewModel = debugLogsVM
-                };
-
-                try
-                {
-                    var response = _flurlClient.Request("api/v1/debug-logs/")
-                        .WithOAuthBearerToken(_configuration.Token)
-                        .PostJsonAsync(requestModel)
-                        .ReceiveJson<DebugLogsResponse>()
                         .Result;
                 }
                 catch
