@@ -27,13 +27,31 @@ namespace SSPLinkedInService.Services
                     Guid = new Guid(_configuration.APIKey)
                 };
 
-                var response = _flurlClient.Request("api/v1/accounts/windows-service/signin")
+                var response = _flurlClient.Request("api/v1/accounts/signin/windows-service")
                      .PostUrlEncodedAsync(requestModel)
                      .ReceiveJson<AuthorizationServiceResponse>()
                      .Result;
 
                 _configuration.IsAuthorized = !string.IsNullOrEmpty(response.Token) && response.StatusCode == (int)HttpStatusCode.OK;
                 _configuration.Token = !string.IsNullOrEmpty(response.Token) ? response.Token : string.Empty;
+
+                return response;
+            }
+            catch
+            {
+                _configuration.LogOut();
+                return default;
+            }
+        }
+
+        public AccountsIdsResponse GetActiveAccountsIds()
+        {
+            try
+            {
+                var response = _flurlClient.Request($"api/v1/accounts/active/ids")
+                    .WithOAuthBearerToken(_configuration.Token)
+                    .GetJsonAsync<AccountsIdsResponse>()
+                    .Result;
 
                 return response;
             }
