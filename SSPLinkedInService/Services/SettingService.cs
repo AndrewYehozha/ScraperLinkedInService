@@ -18,6 +18,24 @@ namespace SSPLinkedInService.Services
             _flurlClient.Settings.Timeout = TimeSpan.FromSeconds(60);
         }
 
+        public SettingsResponse GetSettingsByAccountId(int accountId)
+        {
+            try
+            {
+                var response = _flurlClient.Request($"api/v1/settings/setting/{ accountId }")
+                    .WithOAuthBearerToken(_configuration.Token)
+                    .GetJsonAsync<SettingsResponse>()
+                    .Result;
+
+                return response;
+            }
+            catch
+            {
+                _configuration.LogOut();
+                return default;
+            }
+        }
+
         public void UpdateScraperStatus(ScraperStatus status)
         {
             if (_configuration.IsAuthorized)

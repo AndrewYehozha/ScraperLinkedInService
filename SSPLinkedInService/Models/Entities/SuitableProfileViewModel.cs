@@ -25,7 +25,6 @@ namespace SSPLinkedInService.Models.Entities
         public string Facebook { get; set; }
         public string TechStack { get; set; }
         public DateTime? DateTimeCreation { get; set; }
-        public int ProfileID { get; set; }
         public int AccountID { get; set; }
         public int CompanyID { get; set; }
     }

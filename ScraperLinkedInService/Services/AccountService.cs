@@ -27,7 +27,7 @@ namespace ScraperLinkedInService.Services
                     Guid = new Guid(_configuration.APIKey)
                 };
 
-                var response = _flurlClient.Request("api/v1/accounts/windows-service/signin")
+                var response = _flurlClient.Request("api/v1/accounts/signin/windows-service")
                      .PostUrlEncodedAsync(requestModel)
                      .ReceiveJson<AuthorizationServiceResponse>()
                      .Result;

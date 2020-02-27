@@ -10,6 +10,7 @@ namespace ScraperLinkedInService
         public string APIKey { get; set; }
         public string ServerURL { get; set; }
         public string Token { get; set; }
+        public int AccountId { get; set; }
         public bool IsAuthorized { get; set; }
 
         public static AppServiceConfiguration Instance

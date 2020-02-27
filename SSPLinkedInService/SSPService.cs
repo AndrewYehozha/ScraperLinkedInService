@@ -31,6 +31,7 @@ namespace SSPLinkedInService
             if (_configuration.IsAuthorized)
             {
                 _debugLogService.SendDebugLog("", "SSPService starting...");
+
                 _searchSuitableProfiles.Run();
             }
         }
