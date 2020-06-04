@@ -20,7 +20,6 @@ namespace SSPLinkedInService.Services.EmailValidatorService
         public List<string> GetValidEmails(string firstName, string lastName, string companyDomain)
         {
             var isCorrectDomain = true;
-
             Emails = new List<string>();
 
             if (!string.IsNullOrEmpty(companyDomain))
@@ -39,7 +38,6 @@ namespace SSPLinkedInService.Services.EmailValidatorService
                         case EmailValidationResult.OK:
                             Emails.Add(email);
                             break;
-
                         case EmailValidationResult.NoMailForDomain:
                             //Emails are not configured for domain
                             isCorrectDomain = false;
@@ -47,7 +45,6 @@ namespace SSPLinkedInService.Services.EmailValidatorService
                     }
                 }
             }
-
             return Emails;
         }
 
