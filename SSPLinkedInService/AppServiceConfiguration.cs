@@ -12,6 +12,7 @@ namespace SSPLinkedInService
         public string ServerURL { get; set; }
         public int SearchProfilesBatchSize { get; set; }
         public string Token { get; set; }
+        public System.DateTime TokenExpires { get; set; }
         public bool IsAuthorized { get; set; }
 
         public static AppServiceConfiguration Instance
@@ -26,6 +27,7 @@ namespace SSPLinkedInService
                         ServerURL = ConfigurationManager.AppSettings["ServerURL"] ?? string.Empty,
                         SearchProfilesBatchSize = (ConfigurationManager.AppSettings["SEARCH_PROFILES_BATCH_SIZE"]).AsInt32(50),
                         Token = string.Empty,
+                        TokenExpires = new System.DateTime(1900, 1, 1),
                         IsAuthorized = false
                     };
                 }
@@ -37,6 +39,7 @@ namespace SSPLinkedInService
         public void LogOut()
         {
             _instance.Token = string.Empty;
+            _instance.TokenExpires = new System.DateTime(1900, 1, 1);
             _instance.IsAuthorized = false;
         }
     }

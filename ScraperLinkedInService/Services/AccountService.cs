@@ -33,6 +33,7 @@ namespace ScraperLinkedInService.Services
                      .Result;
 
                 _configuration.IsAuthorized = !string.IsNullOrEmpty(response.Token) && response.StatusCode == (int)HttpStatusCode.OK;
+                _configuration.TokenExpires = response.TokenExpires;
                 _configuration.Token = !string.IsNullOrEmpty(response.Token) ? response.Token : string.Empty;
 
                 return response;

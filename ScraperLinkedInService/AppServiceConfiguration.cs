@@ -10,6 +10,7 @@ namespace ScraperLinkedInService
         public string APIKey { get; set; }
         public string ServerURL { get; set; }
         public string Token { get; set; }
+        public System.DateTime TokenExpires { get; set; }
         public int AccountId { get; set; }
         public bool IsAuthorized { get; set; }
 
@@ -23,6 +24,7 @@ namespace ScraperLinkedInService
                         APIKey = ConfigurationManager.AppSettings["APIKey"] ?? string.Empty,
                         ServerURL = ConfigurationManager.AppSettings["ServerURL"] ?? string.Empty,
                         Token = string.Empty,
+                        TokenExpires = new System.DateTime(1900, 1, 1),
                         IsAuthorized = false
                     };
                 }
@@ -34,6 +36,7 @@ namespace ScraperLinkedInService
         public void LogOut()
         {
             _instance.Token = string.Empty;
+            _instance.TokenExpires = new System.DateTime(1900, 1, 1);
             _instance.IsAuthorized = false;
         }
     }
