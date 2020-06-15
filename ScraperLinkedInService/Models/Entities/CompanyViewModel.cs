@@ -21,5 +21,6 @@ namespace ScraperLinkedInService.Models.Entities
         public string Industry { get; set; }
         public int AccountId { get; set; }
         public int LastScrapedPage { get; set; }
+        public System.DateTime DateCreated { get; set; }
     }
 }
