@@ -16,6 +16,7 @@ namespace ScraperLinkedInService.WorkerService
     public class Scraper
     {
         //https://sites.google.com/a/chromium.org/chrome_driver/downloads
+        //https://sites.google.com/a/chromium.org/chromedriver/
 
         private readonly AccountService _accountService;
         private readonly SettingService _settingService;
@@ -293,7 +294,7 @@ namespace ScraperLinkedInService.WorkerService
                         {
                             _profileService.InsertProfiles(profiles);
                             _companyService.UpdateLastPageCompany(company.Id, i);
-                            profiles = default;
+                            profiles.Clear();
                         }
                     }
 
@@ -315,6 +316,7 @@ namespace ScraperLinkedInService.WorkerService
             foreach (var employee in employees)
             {
                 Thread.Sleep(10000); //A break between requests.
+                rolesSearch = new List<string> { "Chief", "CEO", "CIO", "CTO", "Founder" };
 
                 _debugLogService.SendDebugLog(employee.ProfileUrl, "Opening profile");
                 GoToUrl(employee.ProfileUrl, "", $"Error opening profile page with url: { employee.ProfileUrl }");
@@ -337,7 +339,7 @@ namespace ScraperLinkedInService.WorkerService
 
                 _debugLogService.SendDebugLog("", "Scrolling to load all data of the profile...");
 
-                var fullNameElement = FindElementByCssSelector(".pv-top-card-v3--list .break-words", false);
+                var fullNameElement = FindElementByCssSelector(".pv-top-card-v3--list .break-words,.pv-top-card--list .break-words", false);
                 if (fullNameElement != null)
                 {
                     employee.FullName = fullNameElement.Text;
@@ -345,7 +347,7 @@ namespace ScraperLinkedInService.WorkerService
                     employee.LastName = employee.FullName.Split(' ')[1];
                 }
 
-                var lastJobsElements = FindElementsByCssSelector(".pv-top-card-v3--experience-list-item > span", false);
+                var lastJobsElements = FindElementsByCssSelector(".pv-top-card-v3--experience-list-item > span,.pv-top-card--experience-list-item > span", false);
                 if (lastJobsElements == null && !lastJobsElements.Any(x => x.Text.ToUpper().Contains(employee.OrganizationName.ToUpper())))
                 {
                     employee.ProfileStatus = ProfileStatus.Unsuited;
@@ -419,13 +421,12 @@ namespace ScraperLinkedInService.WorkerService
                 }
 
                 profilesReady.Add(employee);
-                if (profilesReady.Count >= 50)
+                if (profilesReady.Count >= 10)
                 {
                     _profileService.UpdateProfiles(profilesReady, rolesSearch, technologiesSearch);
-                    profilesReady = default;
+                    profilesReady.Clear();
                 }
             }
-
             _profileService.UpdateProfiles(profilesReady, rolesSearch, technologiesSearch);
         }
 

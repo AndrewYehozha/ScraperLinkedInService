@@ -82,6 +82,7 @@ namespace SSPLinkedInService.WorkerService
 
                 if (profileSkills == null || profileSkills.Count() == 0)
                 {
+                    _profileService.UpdateProfilesExecutionStatusByCompanyID(accountId, ExecutionStatus.Success, companyEmployees.Id);
                     continue;
                 }
 
@@ -114,7 +115,7 @@ namespace SSPLinkedInService.WorkerService
                             var firstName = fullName.Trim().Split(' ')[0];
                             var lastName = fullName.Trim().Split(' ')[1];
                             var emails = _emailHandler.GetValidEmails(firstName, lastName, companyEmployees.Website);
-                            result.Add(GenerateResultViewModel(accountId, null, companyEmployees, rolesSearch, technologiesStack, emails, location, firstName, lastName, "Founder", "..."));
+                            result.Add(GenerateResultViewModel(accountId, null, companyEmployees, rolesSearch, technologiesStack, emails, location, firstName, lastName, "Founder", ""));
                         }
                     }
                 }
@@ -124,7 +125,7 @@ namespace SSPLinkedInService.WorkerService
                     foreach (var employee in companyEmployees.ProfilesViewModel.Where(x => x.ProfileStatus == ProfileStatus.Developer))
                     {
                         var emails = _emailHandler.GetValidEmails(employee.FirstName, employee.LastName, companyEmployees.Website);
-                        result.Add(GenerateResultViewModel(accountId, employee, companyEmployees, rolesSearch, technologiesStack, emails, location));
+                        result.Add(GenerateResultViewModel(accountId, employee, companyEmployees, rolesSearch, employee.AllSkills.Split(','), emails, location));
                     }
                 }
 
@@ -142,17 +143,17 @@ namespace SSPLinkedInService.WorkerService
             {
                 FirstName = firstName != null ? firstName : employee.FirstName,
                 LastName = lastName != null ? lastName: employee.LastName,
-                Job = job != null ? job : rolesSearch.Where(x => employee.Job.ToUpper().Split(' ').Contains(x.Trim())).FirstOrDefault(),
+                Job = employee.Job,
                 PersonLinkedIn = personLinkedIn != null ? personLinkedIn : employee.ProfileUrl,
                 Company = companyEmployees.OrganizationName,
                 Website = companyEmployees.Website,
                 CompanyLogoUrl = companyEmployees.LogoUrl,
                 CrunchUrl = companyEmployees.OrganizationURL,
-                Email = emails.Count > 0 ? emails.FirstOrDefault() : "...",
-                EmailStatus = emails.Count > 0 && emails.Count < 4 ? "OK" : "...",
-                City = location.Count() > 0 ? location[0] : "...",
-                State = location.Count() > 1 ? location[1] : "...",
-                Country = location.Count() > 2 ? location[2] : "...",
+                Email = emails.Count > 0 ? emails.FirstOrDefault() : "",
+                EmailStatus = emails.Count > 0 && emails.Count < 4 ? "OK" : "",
+                City = location.Count() > 0 ? location[0] : "",
+                State = location.Count() > 1 ? location[1] : "",
+                Country = location.Count() > 2 ? location[2] : "",
                 PhoneNumber = companyEmployees.PhoneNumber,
                 AmountEmployees = companyEmployees.AmountEmployees,
                 Industry = companyEmployees.Industry,
