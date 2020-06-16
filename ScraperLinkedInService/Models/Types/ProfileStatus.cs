@@ -6,6 +6,7 @@
         Developer = 1,
         Chief = 2,
         Unsuited = 3,
-        Suited = 4
+        Suited = 4,
+        Any = 99
     }
 }

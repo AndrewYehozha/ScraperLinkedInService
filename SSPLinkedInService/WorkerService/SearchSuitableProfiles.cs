@@ -161,7 +161,8 @@ namespace SSPLinkedInService.WorkerService
                 Facebook = companyEmployees.Facebook,
                 TechStack = string.Join(", ", technologiesStack),
                 AccountID = accountId,
-                CompanyID = companyEmployees.Id
+                CompanyID = companyEmployees.Id,
+                ProfileStatus = employee.ProfileStatus
             };
         }
     }

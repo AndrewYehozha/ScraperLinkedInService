@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SSPLinkedInService.Models.Types;
+using System;
 
 namespace SSPLinkedInService.Models.Entities
 {
@@ -27,5 +28,6 @@ namespace SSPLinkedInService.Models.Entities
         public DateTime? DateTimeCreation { get; set; }
         public int AccountID { get; set; }
         public int CompanyID { get; set; }
+        public ProfileStatus ProfileStatus { get; set; }
     }
 }
